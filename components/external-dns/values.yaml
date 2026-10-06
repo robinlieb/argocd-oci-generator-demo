@@ -1,0 +1,8 @@
+---
+external-dns:
+  provider:
+    name: inmemory
+  policy: upsert-only
+  sources:
+    - crd
+  txtOwnerId: argocd-oci-demo

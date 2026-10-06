@@ -1,0 +1,37 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - oci:
+        repoURL: oci://ghcr.io/robinlieb/argocd-oci-generator-demo/platform
+        revision: "1.0.0"
+        directories:
+          - path: components/*
+  template:
+    metadata:
+      name: "{{.path.basename}}"
+      labels:
+        app.kubernetes.io/managed-by: platform-appset
+        bundle: platform
+    spec:
+      project: default
+      source:
+        repoURL: oci://ghcr.io/robinlieb/argocd-oci-generator-demo/platform
+        targetRevision: "1.0.0"
+        path: "{{.path.path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{.path.basename}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

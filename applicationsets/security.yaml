@@ -1,0 +1,44 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: security
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          - clusters:
+              selector:
+                matchLabels:
+                  env: spoke
+          - oci:
+              repoURL: oci://ghcr.io/robinlieb/argocd-oci-generator-demo/security
+              revision: "1.0.0"
+              pathParamPrefix: sec
+              directories:
+                - path: components/*
+  template:
+    metadata:
+      name: "{{.name}}-{{.sec.path.basename}}"
+      labels:
+        app.kubernetes.io/managed-by: security-appset
+        bundle: security
+    spec:
+      project: default
+      source:
+        repoURL: oci://ghcr.io/robinlieb/argocd-oci-generator-demo/security
+        targetRevision: "1.0.0"
+        path: "{{.sec.path.path}}"
+      destination:
+        name: "{{.name}}"
+        namespace: "{{.sec.path.basename}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

@@ -1,0 +1,7 @@
+---
+external-secrets:
+  installCRDs: true
+  webhook:
+    replicaCount: 1
+  certController:
+    replicaCount: 1

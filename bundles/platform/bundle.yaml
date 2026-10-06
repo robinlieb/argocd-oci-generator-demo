@@ -1,0 +1,7 @@
+---
+name: platform
+components:
+  - cert-manager
+  - external-dns
+  - external-secrets
+  - traefik
